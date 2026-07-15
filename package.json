@@ -9,7 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/genai": "^2.10.0",
+    "@monaco-editor/react": "^4.7.0",
+    "mongoose": "^9.7.3",
     "next": "16.2.10",
+    "next-auth": "^4.24.14",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
