@@ -2,6 +2,7 @@
 
 import { project } from "@/projectInfo";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Editor, { Monaco } from "@monaco-editor/react";
 import FileExplorer from "./FileExplorer";
 import { IFileSnapshot } from "@/types/workspace";
@@ -71,6 +72,8 @@ export default function CodeWorkspace({
   taskData,
   onFinish,
 }: CodeWorkspaceProps) {
+  const router = useRouter();
+
   const [files, setFiles] = useState<IFileSnapshot[]>(initialFiles);
   const [selectedFilePath, setSelectedFilePath] = useState<string>("");
   const [assistantState, setAssistantState] = useState<IAssistantState>({
@@ -262,9 +265,12 @@ export default function CodeWorkspace({
     <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-full bg-slate-900 text-slate-100 lg:overflow-hidden">
       <div className="w-full lg:w-64 h-[35vh] lg:h-full flex flex-col bg-slate-950 lg:border-r border-b border-slate-800 shrink-0 lg:shrink">
         <div className="p-3 sm:p-4 border-b border-slate-800 shrink-0">
-          <h3 className="font-semibold text-xs sm:text-sm text-slate-400 tracking-wider uppercase select-none">
+          <button
+            onClick={() => router.push("/")}
+            className="font-semibold text-xs sm:text-sm text-slate-400 tracking-wider uppercase"
+          >
             {project.title}
-          </h3>
+          </button>
         </div>
 
         <div className="flex-1 min-h-0 overflow-auto">

@@ -2,11 +2,15 @@
 
 import { project } from "@/projectInfo";
 import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import TaskBoard from "@/components/TaskBoard";
 import { ITask } from "@/types/workspace";
 
 export default function Home() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
   const { data: session, status } = useSession();
 
   const [repoInput, setRepoInput] = useState("");
@@ -73,7 +77,7 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() => signIn("github")}
+            onClick={() => signIn("github", { callbackUrl })}
             className="w-full py-3 bg-white hover:bg-slate-100 text-slate-950 font-bold rounded-xl transition shadow-lg tracking-wide flex items-center justify-center space-x-2"
           >
             <span>Sign In With GitHub</span>
@@ -102,12 +106,12 @@ export default function Home() {
             )}
           </div>
 
-          <div className="w-full sm:w-auto flex items-center justify-end gap-3 shrink-0">
+          <div className="w-full flex items-center justify-end gap-3 shrink-0">
             <span
-              title={`Hi, ${session.user?.name}`}
-              className="max-w-30 sm:max-w-37.5 text-xs text-slate-400 font-medium truncate"
+              title={`Hi, ${session.user?.name || "Coder"}`}
+              className="max-w-37.5 sm:max-w-30 text-xs text-slate-400 font-medium truncate"
             >
-              Hi, {session.user?.name}
+              Hi, {session.user?.name || "Coder"}
             </span>
             <button
               onClick={() => signOut()}

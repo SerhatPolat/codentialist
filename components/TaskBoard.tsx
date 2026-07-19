@@ -221,12 +221,15 @@ export default function TaskBoard({
               </div>
 
               <div className="flex items-center space-x-2 self-end md:self-center">
-                <button
-                  onClick={() => handleEditSetup(task)}
-                  className={`${genericBtnStyles} bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
-                >
-                  Edit
-                </button>
+                {task.status !== "Done" && (
+                  <button
+                    onClick={() => handleEditSetup(task)}
+                    className={`${genericBtnStyles} bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
+                  >
+                    Edit
+                  </button>
+                )}
+
                 <button
                   onClick={() => handleDeleteTask(task._id)}
                   disabled={isLoading}
@@ -238,7 +241,8 @@ export default function TaskBoard({
                   onClick={() => router.push(`/workspace/${task._id}`)}
                   className={`${genericBtnStyles} bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-500/20`}
                 >
-                  {task.status === "Done" ? "Check Work" : "Code With AI"} →
+                  {task.status === "Done" ? "Check/Edit Codes" : "Code With AI"}{" "}
+                  →
                 </button>
               </div>
             </div>
