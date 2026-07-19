@@ -32,7 +32,6 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: [
     "/workspace/:path*",
-    "/api/workspace/:path*",
     "/api/tasks/:path*",
     "/api/github/:path*",
     "/api/ai/:path*",
