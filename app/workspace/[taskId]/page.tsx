@@ -2,7 +2,9 @@
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
-import CodeWorkspace from "../../../components/CodeWorkspace";
+import LoadingView from "@/components/LoadingView";
+import OrbsBackground from "@/components/OrbsBackground";
+import CodeWorkspace from "@/components/CodeWorkspace";
 
 interface IRepoInfoState {
   branch: string;
@@ -52,7 +54,11 @@ export default function WorkspacePage({
     loadTaskContext();
   }, [taskId]);
 
-  const initiateAiInitializationFlow = async () => {
+  const initiateAiInitializationFlow = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+
+    if (isLoading) return;
+
     if (!repoInfo.repo.trim()) return alert("Repository info is missing.");
     if (!repoInfo.branch.trim()) return alert("Branch name is required.");
 
@@ -144,21 +150,12 @@ export default function WorkspacePage({
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900 text-slate-200">
-        <div className="max-w-xs w-full space-y-3 text-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto border-4 border-t-indigo-500 border-slate-700 rounded-full animate-spin shrink-0" />
-          <p className="text-sm font-medium px-4">
-            Synchronizing application context...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingView />;
   }
 
   if (flowState === "setup") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
+      <div className="relative isolate min-h-screen flex items-center justify-center p-4 bg-slate-950">
         <div className="max-w-md w-full p-5 sm:p-6 bg-slate-950 border border-slate-800 rounded-xl shadow-2xl">
           <h2
             className="text-lg sm:text-xl font-bold text-slate-100 truncate mb-2"
@@ -177,10 +174,13 @@ export default function WorkspacePage({
             </code>
           </p>
 
-          <div className="space-y-4 mb-6">
+          <form onSubmit={initiateAiInitializationFlow} className="space-y-4">
             <div>
-              <label className="block text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                Base Branch
+              <label className="block text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                Base Branch{" "}
+                <span className="text-slate-500 text-[9px]">
+                  (must be valid)
+                </span>
               </label>
               <input
                 type="text"
@@ -192,18 +192,21 @@ export default function WorkspacePage({
                   }));
                 }}
                 placeholder="e.g., main, dev, feature/auth-v2"
-                className="w-full px-3 py-2 bg-slate-900 text-sm text-slate-100 font-mono border border-slate-800 rounded-lg focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-slate-950 text-sm text-slate-100 font-mono border border-slate-800 rounded-lg focus:outline-none focus:border-indigo-400"
               />
             </div>
-          </div>
-          <button
-            onClick={initiateAiInitializationFlow}
-            className="w-full p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium text-sm text-white truncate transition shadow-lg shadow-indigo-600/20"
-            title="Pull Codebase & Run AI Blueprint Analysis"
-          >
-            Pull Codebase & Run AI Blueprint Analysis
-          </button>
+
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-linear-to-r from-white to-white hover:from-indigo-400 hover:to-cyan-400 text-slate-950 hover:text-white text-sm sm:text-lg font-bold tracking-wide rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-cyan-400/30"
+              title="Pull Codes & Start AI Analysis"
+            >
+              Pull Codes & Start AI Analysis
+            </button>
+          </form>
         </div>
+
+        <OrbsBackground />
       </div>
     );
   }

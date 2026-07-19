@@ -199,7 +199,7 @@ export default function FileExplorer({
         onClick={() => onSelect(node.path)}
         className={`w-full flex items-center px-2 py-1 text-xs text-left border-l-2 transition ${
           isSelected
-            ? "bg-indigo-600/10 border-indigo-500 text-indigo-300 font-medium"
+            ? "bg-indigo-600/10 border-indigo-400 text-indigo-300 font-medium"
             : `border-transparent ${statusClass} ${
                 isDeleted ? "opacity-60" : "hover:bg-slate-800/40"
               }`

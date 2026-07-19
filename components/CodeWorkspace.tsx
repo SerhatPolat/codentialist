@@ -262,7 +262,7 @@ export default function CodeWorkspace({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-full bg-slate-900 text-slate-100 lg:overflow-hidden">
+    <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-full bg-slate-950 text-slate-100 lg:overflow-hidden">
       <div className="w-full lg:w-64 h-[35vh] lg:h-full flex flex-col bg-slate-950 lg:border-r border-b border-slate-800 shrink-0 lg:shrink">
         <div className="p-3 sm:p-4 border-b border-slate-800 shrink-0">
           <button
@@ -303,7 +303,7 @@ export default function CodeWorkspace({
 
             {activeFile && (
               <span
-                className="max-w-20 sm:max-w-none px-1.5 py-0.5 truncate text-[10px] text-slate-400 font-mono bg-slate-900 border border-slate-800 rounded shrink-0"
+                className="max-w-20 sm:max-w-none px-1.5 py-0.5 truncate text-[10px] text-slate-400 font-mono bg-slate-950 border border-slate-800 rounded shrink-0"
                 title={getLanguageFromPath(activeFile.path)}
               >
                 {getLanguageFromPath(activeFile.path)}
@@ -353,7 +353,7 @@ export default function CodeWorkspace({
         </div>
 
         <div className="flex-1 min-h-0 p-3 sm:p-4 space-y-4 overflow-y-auto">
-          <div className="bg-slate-900 p-3 border border-slate-800 rounded">
+          <div className="bg-slate-950 p-3 border border-slate-800 rounded">
             <h4 className="mb-1 font-medium text-[10px] sm:text-xs text-slate-400">
               Task Context
             </h4>
@@ -385,13 +385,13 @@ export default function CodeWorkspace({
               }));
             }}
             placeholder="Instruct workspace modifications..."
-            className="w-full h-16 sm:h-20 p-2 resize-none bg-slate-900 text-slate-200 text-xs border border-slate-800 rounded focus:outline-none focus:border-indigo-500"
+            className="w-full h-16 sm:h-20 p-2 resize-none bg-slate-950 text-slate-200 text-xs border border-slate-800 rounded focus:outline-none focus:border-indigo-400"
           />
 
           <button
             onClick={triggerAssistantAdjustment}
             disabled={isLoadingAssistantResponse}
-            className="w-full p-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 rounded text-xs text-white font-medium truncate transition"
+            className="w-full p-2 bg-indigo-600 hover:bg-indigo-400 disabled:bg-slate-800 rounded text-xs text-white font-medium truncate transition"
             title={
               isLoadingAssistantResponse ? "Refining Code..." : "Modify With AI"
             }

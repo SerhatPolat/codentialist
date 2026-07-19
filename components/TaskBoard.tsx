@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Edit, Trash } from "lucide-react";
 import { ITask } from "@/types/workspace";
 
 interface ITaskFields {
@@ -42,8 +43,10 @@ export default function TaskBoard({
   const handleCreateOrUpdateTask = async (e: React.SubmitEvent) => {
     e.preventDefault();
 
-    if (!taskFields.title.trim() || !taskFields.desc.trim() || isLoading)
-      return;
+    if (isLoading) return;
+
+    if (!taskFields.title.trim() || !taskFields.desc.trim())
+      return alert("Title and description are required.");
 
     setIsLoading(true);
 
@@ -102,7 +105,7 @@ export default function TaskBoard({
   };
 
   const genericInputStyles =
-    "w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500";
+    "w-full px-3 py-2 bg-slate-950 text-sm text-slate-100 border border-slate-800 rounded-lg focus:outline-none focus:border-indigo-400";
 
   const genericBtnStyles =
     "p-1.5 border rounded text-xs font-semibold shrink-0 transition disabled:brightness-75";
@@ -170,10 +173,8 @@ export default function TaskBoard({
 
             <button
               type="submit"
-              disabled={
-                !taskFields.title.trim() || !taskFields.desc.trim() || isLoading
-              }
-              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 rounded-lg text-sm text-white font-medium transition"
+              disabled={isLoading}
+              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-400 disabled:bg-slate-800 rounded-lg text-sm text-white font-medium transition"
             >
               {editingTaskId ? "Save Modifications" : "Add Task"}
             </button>
@@ -224,22 +225,24 @@ export default function TaskBoard({
                 {task.status !== "Done" && (
                   <button
                     onClick={() => handleEditSetup(task)}
-                    className={`${genericBtnStyles} bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
+                    title="Edit Task"
+                    className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
                   >
-                    Edit
+                    <Edit size={16} />
                   </button>
                 )}
 
                 <button
                   onClick={() => handleDeleteTask(task._id)}
                   disabled={isLoading}
-                  className={`${genericBtnStyles} bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border-slate-800`}
+                  title="Delete Task"
+                  className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border-slate-800`}
                 >
-                  Delete
+                  <Trash size={16} />
                 </button>
                 <button
                   onClick={() => router.push(`/workspace/${task._id}`)}
-                  className={`${genericBtnStyles} bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-500/20`}
+                  className={`${genericBtnStyles} bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-400/20`}
                 >
                   {task.status === "Done" ? "Check/Edit Codes" : "Code With AI"}{" "}
                   →
