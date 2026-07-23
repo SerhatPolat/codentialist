@@ -14,6 +14,10 @@ export async function POST(req: NextRequest) {
     ${JSON.stringify(
       files.map((f: any) => ({ path: f.path, content: f.content }))
     )}
+
+    1.Analyze the task requirements.
+    2.Analyze the related source files to have codebase specific knowledge.
+    3.Suggest precise modifications.
   `;
 
   try {
@@ -24,7 +28,7 @@ export async function POST(req: NextRequest) {
           role: "user",
           parts: [
             {
-              text: `${promptContext}\n\nAnalyze the structural task requirements and suggest precise modifications.`,
+              text: promptContext,
             },
           ],
         },

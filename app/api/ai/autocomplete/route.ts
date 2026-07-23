@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
           role: "user",
           parts: [
             {
-              text: `Code before cursor:\n"""\n${prefix}\n"""\nCode after cursor:\n"""\n${suffix}\n"""\nProvide only the precise immediate code addition inline to complete the row without markdown block wrappers.`,
+              text: `Code before cursor:\n"""\n${prefix}\n"""\nCode after cursor:\n"""\n${suffix}\n"""\n\nProvide only the precise immediate inline code addition to complete the row (without markdown block wrappers).`,
             },
           ],
         },

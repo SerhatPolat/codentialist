@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
   const promptContext = `
     You are an AI code assistant integrated into an IDE workspace.
-    The user wants to make a specific target change to the existing files.
+    The user wants to make a specific change on the codebase.
 
     User Instruction: "${instruction}"
 
@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
       }))
     )}
 
-    Review the files and output the updated content or add/remove files based on the instruction.
-    For unchanged files, you do not need to return them in the array, only return files that are added, modified, or deleted.
+    Review the files and output the modified content or add/remove files based on the instruction.
+    For unchanged files, you do not need to return them in the array. Only return files that are added, modified, or deleted.
   `;
 
   try {
