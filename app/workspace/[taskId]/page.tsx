@@ -164,7 +164,7 @@ export default function WorkspacePage({
             Initialize AI Task Workspace
           </h2>
 
-          <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-6 text-slate-400 text-xs">
+          <p className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-4 text-slate-400 text-xs">
             <span className="shrink-0">Repository:</span>
             <code
               className="max-w-full text-amber-400 font-mono truncate"

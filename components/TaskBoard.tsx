@@ -154,7 +154,7 @@ export default function TaskBoard({
             />
           </div>
 
-          <div className="flex space-x-2 pt-2">
+          <div className="flex space-x-2">
             {editingTaskId && (
               <button
                 type="button"

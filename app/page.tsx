@@ -75,7 +75,7 @@ export default function Home() {
   if (!session) {
     return (
       <div className="relative isolate min-h-screen flex items-center justify-center bg-slate-950 p-4">
-        <div className="max-w-sm w-full text-center bg-slate-950 p-8 space-y-6 border border-slate-800 rounded-xl shadow-2xl">
+        <div className="max-w-sm w-full text-center bg-slate-950 p-8 space-y-4 border border-slate-800 rounded-xl shadow-2xl">
           <div className="space-y-2">
             <h1 className="text-2xl font-black text-white tracking-tight">
               {project.title}
