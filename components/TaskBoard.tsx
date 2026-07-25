@@ -120,7 +120,7 @@ export default function TaskBoard({
         <form onSubmit={handleCreateOrUpdateTask} className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
-              Task Scope Title <span className="text-red-800">*</span>
+              Task Scope Title
             </label>
             <input
               type="text"
@@ -138,8 +138,7 @@ export default function TaskBoard({
 
           <div>
             <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
-              Functional Specification Details{" "}
-              <span className="text-red-800">*</span>
+              Functional Specification Details
             </label>
             <textarea
               value={taskFields.desc}

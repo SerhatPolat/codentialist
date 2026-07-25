@@ -4,11 +4,12 @@ import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function POST(req: NextRequest) {
   const session: any = await getServerSession(authOptions);
-  if (!session)
+  if (!session.accessToken)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { repository, branch } = await req.json();
   const token = session.accessToken;
+
+  const { repository, branch } = await req.json();
 
   try {
     const repoRes = await fetch(`https://api.github.com/repos/${repository}`, {
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({ files: filesData });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

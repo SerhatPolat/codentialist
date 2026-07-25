@@ -21,12 +21,30 @@ export default function WorkspacePage({
   const router = useRouter();
 
   const [task, setTask] = useState<any>(null);
+  const [branches, setBranches] = useState<string[]>([]);
   const [repoInfo, setRepoInfo] = useState<IRepoInfoState>({
     branch: "",
     repo: "",
   });
   const [flowState, setFlowState] = useState<"setup" | "active">("setup");
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchBranches = async (repo: string) => {
+    try {
+      const res = await fetch(`/api/github/branches?repo=${repo}`);
+
+      const data = await res.json();
+
+      if (Array.isArray(data.branches) && data.branches.length > 0) {
+        setBranches(data.branches);
+      } else {
+        router.push("/");
+      }
+    } catch (err) {
+      console.error(err);
+      router.push("/");
+    }
+  };
 
   useEffect(() => {
     const loadTaskContext = async () => {
@@ -45,6 +63,8 @@ export default function WorkspacePage({
 
         if (data.filesSnapshot && data.filesSnapshot.length > 0) {
           setFlowState("active");
+        } else if (data.repository) {
+          await fetchBranches(data.repository);
         }
       }
 
@@ -52,6 +72,7 @@ export default function WorkspacePage({
     };
 
     loadTaskContext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
   const initiateAiInitializationFlow = async (e: React.SubmitEvent) => {
@@ -119,8 +140,8 @@ export default function WorkspacePage({
         aiExplanation: aiAnalysisRes.explanation,
       }));
       setFlowState("active");
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -179,21 +200,47 @@ export default function WorkspacePage({
               <label className="block text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
                 Base Branch{" "}
                 <span className="text-slate-500 text-[9px]">
-                  (must be valid)
+                  (for current task)
                 </span>
               </label>
-              <input
-                type="text"
-                value={repoInfo.branch}
-                onChange={(e) => {
-                  setRepoInfo((prev) => ({
-                    ...prev,
-                    branch: e.target.value,
-                  }));
-                }}
-                placeholder="e.g., main, dev, feature/auth-v2"
-                className="w-full px-3 py-2 bg-slate-950 text-sm text-slate-100 font-mono border border-slate-800 rounded-lg focus:outline-none focus:border-indigo-400"
-              />
+              <div className="relative">
+                <select
+                  value={repoInfo.branch}
+                  title={repoInfo.branch}
+                  onChange={(e) => {
+                    setRepoInfo((prev) => ({
+                      ...prev,
+                      branch: e.target.value,
+                    }));
+                  }}
+                  className="w-full truncate pl-3 py-2 pr-9 bg-slate-950 text-sm text-slate-100 border border-slate-800 hover:border-indigo-400 rounded-lg focus:outline-none transition appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>
+                    Select a branch
+                  </option>
+
+                  {branches.map((branch) => (
+                    <option key={branch} value={branch}>
+                      {branch}
+                    </option>
+                  ))}
+                </select>
+
+                <svg
+                  className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-indigo-300"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="m6 9 6 6 6-6"
+                  />
+                </svg>
+              </div>
             </div>
 
             <button
