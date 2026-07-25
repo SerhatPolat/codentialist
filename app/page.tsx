@@ -16,7 +16,9 @@ export default function Home() {
 
   const { data: session, status } = useSession();
 
-  const [repoInput, setRepoInput] = useState("");
+  const [repoInput, setRepoInput] = useState(
+    sessionStorage.getItem("activeRepo") || ""
+  );
   const [activeRepo, setActiveRepo] = useState<string | null>(null);
   const [tasks, setTasks] = useState<ITask[]>([]);
   const [isGithubSignInOngoing, setIsGithubSignInOngoing] = useState(false);
@@ -41,11 +43,9 @@ export default function Home() {
       });
 
       if (!res.ok) {
-        alert(
+        return alert(
           "Access Denied: You don't have valid permission for this GitHub repository."
         );
-        setIsVerifying(false);
-        return;
       }
 
       const taskRes = await fetch(
@@ -55,6 +55,7 @@ export default function Home() {
       if (taskRes.ok) {
         setTasks(await taskRes.json());
         setActiveRepo(repoInput);
+        sessionStorage.setItem("activeRepo", repoInput);
       }
     } catch {
       alert("Verification processing failed.");
@@ -145,6 +146,7 @@ export default function Home() {
           <div className="space-y-4 sm:space-y-6">
             <button
               onClick={() => {
+                sessionStorage.removeItem("activeRepo");
                 setActiveRepo(null);
                 setRepoInput("");
               }}
