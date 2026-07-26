@@ -216,6 +216,7 @@ export default function CodeWorkspace({
     if (!assistantState.prompt.trim()) return;
 
     setIsLoadingAssistantResponse(true);
+
     try {
       const res = await fetch("/api/ai/assistant", {
         method: "POST",
@@ -245,19 +246,19 @@ export default function CodeWorkspace({
           return updated;
         });
 
-        setAssistantState((prev) => ({
-          ...prev,
+        setAssistantState({
+          ...assistantState,
           aiExplanation: dynamicPayload.explanation,
-        }));
+        });
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoadingAssistantResponse(false);
-      setAssistantState((prev) => ({
-        ...prev,
+      setAssistantState({
+        ...assistantState,
         prompt: "",
-      }));
+      });
+      setIsLoadingAssistantResponse(false);
     }
   };
 
@@ -378,12 +379,12 @@ export default function CodeWorkspace({
         <div className="p-3 sm:p-4 space-y-2 bg-slate-950 border-t border-slate-800 shrink-0">
           <textarea
             value={assistantState.prompt}
-            onChange={(e) => {
-              setAssistantState((prev) => ({
-                ...prev,
+            onChange={(e) =>
+              setAssistantState({
+                ...assistantState,
                 prompt: e.target.value,
-              }));
-            }}
+              })
+            }
             placeholder="Instruct workspace modifications..."
             className="w-full h-16 sm:h-20 p-2 resize-none bg-slate-950 text-slate-200 text-xs border border-slate-800 rounded focus:outline-none focus:border-indigo-400"
           />

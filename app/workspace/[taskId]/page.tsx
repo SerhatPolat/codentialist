@@ -56,10 +56,10 @@ export default function WorkspacePage({
         const data = await res.json();
 
         setTask(data);
-        setRepoInfo((prev) => ({
-          ...prev,
+        setRepoInfo({
+          ...repoInfo,
           repo: data.repository,
-        }));
+        });
 
         if (data.filesSnapshot && data.filesSnapshot.length > 0) {
           setFlowState("active");
@@ -150,7 +150,7 @@ export default function WorkspacePage({
   const finalizeWorkspaceTrackingState = async (finalFiles: any[]) => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/tasks", {
+      const res = await fetch("/api/tasks", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,7 +160,7 @@ export default function WorkspacePage({
         }),
       });
 
-      if (response.ok) {
+      if (res.ok) {
         router.push("/");
       }
     } catch (err) {
@@ -207,12 +207,12 @@ export default function WorkspacePage({
                 <select
                   value={repoInfo.branch}
                   title={repoInfo.branch}
-                  onChange={(e) => {
-                    setRepoInfo((prev) => ({
-                      ...prev,
+                  onChange={(e) =>
+                    setRepoInfo({
+                      ...repoInfo,
                       branch: e.target.value,
-                    }));
-                  }}
+                    })
+                  }
                   className="w-full truncate pl-3 py-2 pr-9 bg-slate-950 text-sm text-slate-100 border border-slate-800 hover:border-indigo-400 rounded-lg focus:outline-none transition appearance-none cursor-pointer"
                 >
                   <option value="" disabled>

@@ -44,7 +44,7 @@ export default function Home() {
 
       if (!res.ok) {
         return alert(
-          "Access Denied: You don't have valid permission for this GitHub repository."
+          "Access Denied: Invalid repository or you don't have permission for this GitHub repository."
         );
       }
 
@@ -123,7 +123,7 @@ export default function Home() {
             )}
           </div>
 
-          <div className="w-full flex items-center justify-end gap-3 shrink-0">
+          <div className="w-full sm:w-auto flex items-center justify-end gap-3 shrink-0">
             <span
               title={`Hi, ${session.user?.name || "Coder"}`}
               className="max-w-44 sm:max-w-36 text-xs text-slate-400 font-medium truncate"

@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, GitPullRequest, X } from "lucide-react";
 import { ITask } from "@/types/workspace";
 
-interface ITaskFields {
+interface ITaskNGitFields {
   title: string;
   desc: string;
 }
@@ -22,21 +22,27 @@ export default function TaskBoard({
   const router = useRouter();
 
   const [tasks, setTasks] = useState<ITask[]>(initialTasks);
-  const [taskFields, setTaskFields] = useState<ITaskFields>({
+  const [taskFields, setTaskFields] = useState<ITaskNGitFields>({
     title: "",
     desc: "",
   });
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [activeGitTask, setActiveGitTask] = useState<ITask | null>(null);
+  const [gitFields, setGitFields] = useState<ITaskNGitFields>({
+    title: "",
+    desc: "",
+  });
+  const [isGitLoading, setIsGitLoading] = useState(false);
+
   const fetchUpdatedTasks = async () => {
     const res = await fetch(
       `/api/tasks?repository=${encodeURIComponent(repository)}`
     );
-
     if (!res.ok) return;
-
     const data = await res.json();
+
     setTasks(data);
   };
 
@@ -65,13 +71,9 @@ export default function TaskBoard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) return;
 
-      setTaskFields({
-        title: "",
-        desc: "",
-      });
+      setTaskFields({ title: "", desc: "" });
       setEditingTaskId(null);
 
       await fetchUpdatedTasks();
@@ -82,25 +84,73 @@ export default function TaskBoard({
 
   const handleEditSetup = (task: ITask) => {
     setEditingTaskId(task._id);
-    setTaskFields({
-      title: task.title,
-      desc: task.description,
-    });
+    setTaskFields({ title: task.title, desc: task.description });
   };
 
-  const handleDeleteTask = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
+  const handleDeleteTask = async (id: string, bypassConfirmation?: boolean) => {
+    if (!bypassConfirmation) {
+      if (!confirm("Are you sure you want to delete this task?")) return;
+    }
 
     setIsLoading(true);
 
     try {
       const res = await fetch(`/api/tasks?id=${id}`, { method: "DELETE" });
-
       if (!res.ok) return;
 
       await fetchUpdatedTasks();
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const openGitModal = (task: ITask) => {
+    setGitFields({ title: "", desc: "" });
+    setActiveGitTask(task);
+  };
+
+  const handleCommitNCreatePR = async (e: React.SubmitEvent) => {
+    e.preventDefault();
+
+    if (!activeGitTask || isGitLoading) return;
+
+    if (!gitFields.title.trim()) {
+      return alert("Title is required.");
+    }
+
+    setIsGitLoading(true);
+
+    try {
+      const res = await fetch("/api/github/commitNCreatePR", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskId: activeGitTask._id,
+          repository: activeGitTask.repository,
+          baseBranch: activeGitTask.branch,
+          title: gitFields.title,
+          description: gitFields.desc,
+          files: activeGitTask.filesSnapshot,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+
+        window.open(data.prUrl, "_blank", "noopener,noreferrer");
+
+        handleDeleteTask(activeGitTask._id, true);
+
+        setActiveGitTask(null);
+        setGitFields({ title: "", desc: "" });
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(
+        err.message || "Failed to complete commit & create pull request action."
+      );
+    } finally {
+      setIsGitLoading(false);
     }
   };
 
@@ -111,150 +161,239 @@ export default function TaskBoard({
     "p-1.5 border rounded text-xs font-semibold shrink-0 transition disabled:brightness-75";
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="h-fit lg:col-span-1 bg-slate-950 p-6 border border-slate-800 rounded-xl">
-        <h3 className="text-lg text-slate-100 font-bold mb-4">
-          {editingTaskId ? "Edit Workspace Task" : "Create Repository Task"}
-        </h3>
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="h-fit lg:col-span-1 bg-slate-950 p-6 border border-slate-800 rounded-xl">
+          <h3 className="text-lg text-slate-100 font-bold mb-4">
+            {editingTaskId ? "Edit Workspace Task" : "Create Repository Task"}
+          </h3>
 
-        <form onSubmit={handleCreateOrUpdateTask} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
-              Task Scope Title
-            </label>
-            <input
-              type="text"
-              value={taskFields.title}
-              onChange={(e) => {
-                setTaskFields((prev) => ({
-                  ...prev,
-                  title: e.target.value,
-                }));
-              }}
-              placeholder="e.g., Implement Microsoft Auth Callback"
-              className={genericInputStyles}
-            />
-          </div>
+          <form onSubmit={handleCreateOrUpdateTask} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
+                Task Scope Title
+              </label>
+              <input
+                type="text"
+                value={taskFields.title}
+                onChange={(e) =>
+                  setTaskFields({ ...taskFields, title: e.target.value })
+                }
+                placeholder="e.g., Implement Microsoft Auth Callback"
+                className={genericInputStyles}
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
-              Functional Specification Details
-            </label>
-            <textarea
-              value={taskFields.desc}
-              onChange={(e) => {
-                setTaskFields((prev) => ({
-                  ...prev,
-                  desc: e.target.value,
-                }));
-              }}
-              placeholder="Provide clean explicit feature instructions for the AI assistant..."
-              className={`${genericInputStyles} h-32 resize-none`}
-            />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
+                Functional Specification Details
+              </label>
+              <textarea
+                value={taskFields.desc}
+                onChange={(e) =>
+                  setTaskFields({ ...taskFields, desc: e.target.value })
+                }
+                placeholder="Provide clean explicit feature instructions for the AI assistant..."
+                className={`${genericInputStyles} h-32 resize-none`}
+              />
+            </div>
 
-          <div className="flex space-x-2">
-            {editingTaskId && (
+            <div className="flex space-x-2">
+              {editingTaskId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingTaskId(null);
+                    setTaskFields({ title: "", desc: "" });
+                  }}
+                  className="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-300 font-medium transition"
+                >
+                  Cancel
+                </button>
+              )}
+
               <button
-                type="button"
-                onClick={() => {
-                  setEditingTaskId(null);
-                  setTaskFields({
-                    title: "",
-                    desc: "",
-                  });
-                }}
-                className="px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-300 font-medium transition"
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-400 disabled:bg-slate-800 rounded-lg text-sm text-white font-medium transition"
               >
-                Cancel
+                {editingTaskId ? "Save Modifications" : "Add Task"}
               </button>
-            )}
+            </div>
+          </form>
+        </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 py-2 bg-indigo-600 hover:bg-indigo-400 disabled:bg-slate-800 rounded-lg text-sm text-white font-medium transition"
-            >
-              {editingTaskId ? "Save Modifications" : "Add Task"}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="lg:col-span-2 space-y-4">
+          <h3 className="text-lg text-slate-300 font-bold mb-4">
+            Project Tasks
+          </h3>
 
-      <div className="lg:col-span-2 space-y-4">
-        <h3 className="text-lg text-slate-300 font-bold mb-4">Project Tasks</h3>
+          {tasks.length > 0 ? (
+            tasks.map((task) => (
+              <div
+                key={task._id}
+                className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl transition"
+              >
+                <div className="md:max-w-[calc(100%-240px)] space-y-1.5">
+                  <div className="flex items-center space-x-3">
+                    <h4
+                      title={task.title}
+                      className="font-semibold text-slate-100 line-clamp-2"
+                    >
+                      {task.title}
+                    </h4>
 
-        {tasks.length > 0 ? (
-          tasks.map((task) => (
-            <div
-              key={task._id}
-              className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl transition"
-            >
-              <div className="md:max-w-[calc(100%-240px)] space-y-1.5">
-                <div className="flex items-center space-x-3">
-                  <h4
-                    title={task.title}
-                    className="font-semibold text-slate-100 line-clamp-2"
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        task.status === "Done"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : task.status === "In Progress"
+                          ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                          : "bg-slate-800 text-slate-400"
+                      }`}
+                    >
+                      {task.status}
+                    </span>
+                  </div>
+
+                  <p
+                    title={task.description}
+                    className="text-xs text-slate-400 line-clamp-2"
                   >
-                    {task.title}
-                  </h4>
-
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      task.status === "Done"
-                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        : task.status === "In Progress"
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        : "bg-slate-800 text-slate-400"
-                    }`}
-                  >
-                    {task.status}
-                  </span>
+                    {task.description}
+                  </p>
                 </div>
 
-                <p
-                  title={task.description}
-                  className="text-xs text-slate-400 line-clamp-2"
-                >
-                  {task.description}
-                </p>
-              </div>
+                <div className="flex items-center space-x-2 self-end md:self-center">
+                  {task.status !== "Done" && (
+                    <button
+                      onClick={() => handleEditSetup(task)}
+                      title="Edit Task"
+                      className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
+                    >
+                      <Edit size={16} />
+                    </button>
+                  )}
 
-              <div className="flex items-center space-x-2 self-end md:self-center">
-                {task.status !== "Done" && (
                   <button
-                    onClick={() => handleEditSetup(task)}
-                    title="Edit Task"
-                    className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-amber-400 border-slate-800`}
+                    onClick={() => handleDeleteTask(task._id)}
+                    disabled={isLoading}
+                    title="Delete Task"
+                    className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border-slate-800`}
                   >
-                    <Edit size={16} />
+                    <Trash size={16} />
                   </button>
-                )}
 
+                  <button
+                    onClick={() => router.push(`/workspace/${task._id}`)}
+                    className={`${genericBtnStyles} bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-400/20`}
+                  >
+                    {task.status === "Done"
+                      ? "Check/Edit Codes"
+                      : "Code With AI"}{" "}
+                    →
+                  </button>
+
+                  {task.status === "Done" && (
+                    <button
+                      onClick={() => openGitModal(task)}
+                      title="Commit & Create Pull Request"
+                      className={`${genericBtnStyles} bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white border-emerald-400/20`}
+                    >
+                      <GitPullRequest size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="py-12 px-6 border border-dashed border-slate-800 rounded-xl text-center text-sm text-slate-500">
+              No tasks found for this repository sandbox.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {activeGitTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-slate-950 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800">
+              <h3 className="flex items-center gap-2 w-[80%] text-lg font-bold text-slate-100">
+                <GitPullRequest
+                  size={20}
+                  className="text-emerald-400 shrink-0"
+                />
+                <span title="Commit & Create Pull Request" className="truncate">
+                  Commit & Create Pull Request
+                </span>
+              </h3>
+
+              <button
+                onClick={() => {
+                  setActiveGitTask(null);
+                  setGitFields({ title: "", desc: "" });
+                }}
+                disabled={isGitLoading}
+                className="text-slate-400 hover:text-white transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCommitNCreatePR} className="space-y-4 p-6">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
+                  Commit/PR Title
+                </label>
+                <input
+                  type="text"
+                  value={gitFields.title}
+                  onChange={(e) =>
+                    setGitFields({ ...gitFields, title: e.target.value })
+                  }
+                  placeholder="e.g., feat: added auth logics"
+                  className={genericInputStyles}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase">
+                  Commit/PR Description
+                </label>
+                <textarea
+                  value={gitFields.desc}
+                  onChange={(e) =>
+                    setGitFields({ ...gitFields, desc: e.target.value })
+                  }
+                  placeholder="Detailed explanation of the changes..."
+                  className={`${genericInputStyles} h-32 resize-none`}
+                />
+              </div>
+
+              <div className="flex justify-center space-x-3">
                 <button
-                  onClick={() => handleDeleteTask(task._id)}
-                  disabled={isLoading}
-                  title="Delete Task"
-                  className={`${genericBtnStyles} bg-slate-950 hover:bg-slate-800 text-slate-400 hover:text-rose-400 border-slate-800`}
+                  type="button"
+                  onClick={() => {
+                    setActiveGitTask(null);
+                    setGitFields({ title: "", desc: "" });
+                  }}
+                  disabled={isGitLoading}
+                  className="px-3 py-2 bg-transparent hover:bg-slate-800 disabled:opacity-50 rounded-lg text-xs sm:text-sm text-slate-300 font-medium transition"
                 >
-                  <Trash size={16} />
+                  Cancel
                 </button>
                 <button
-                  onClick={() => router.push(`/workspace/${task._id}`)}
-                  className={`${genericBtnStyles} bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border-indigo-400/20`}
+                  type="submit"
+                  disabled={isGitLoading}
+                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 rounded-lg text-xs sm:text-sm text-white font-medium transition"
                 >
-                  {task.status === "Done" ? "Check/Edit Codes" : "Code With AI"}{" "}
-                  →
+                  {isGitLoading ? "Pushing Changes..." : "Commit & Create PR"}
                 </button>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="py-12 px-6 border border-dashed border-slate-800 rounded-xl text-center text-sm text-slate-500">
-            No tasks found for this repository sandbox.
+            </form>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 }
