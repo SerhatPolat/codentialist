@@ -97,6 +97,12 @@ export default function Home() {
               {isGithubSignInOngoing ? "Signing In..." : "Sign In With GitHub"}
             </span>
           </button>
+
+          <p className="text-xs text-slate-500">
+            <span className="text-rose-400 font-semibold">DISCLAIMER:</span>{" "}
+            There can be problematic outputs because of the AI usage. So do not
+            forget to review outputs carefully.
+          </p>
         </div>
 
         <OrbsBackground />
