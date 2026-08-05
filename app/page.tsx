@@ -121,10 +121,10 @@ export default function Home() {
 
             {activeRepo && (
               <span
-                title={`Active Project Sandbox: ${activeRepo}`}
+                title={`Active Sandbox: ${activeRepo}`}
                 className="max-w-full sm:max-w-50 md:max-w-xs bg-slate-950 px-2.5 py-1 rounded border border-slate-800 text-amber-400 text-xs font-mono truncate shrink-0"
               >
-                Active Project Sandbox: {activeRepo}
+                Active Sandbox: {activeRepo}
               </span>
             )}
           </div>
