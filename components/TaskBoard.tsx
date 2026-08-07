@@ -131,7 +131,7 @@ export default function TaskBoard({
     setIsGitLoading(true);
 
     try {
-      const res = await fetch("/api/github/commitNCreatePR", {
+      const res = await fetch("/api/github/commit-and-create-pr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

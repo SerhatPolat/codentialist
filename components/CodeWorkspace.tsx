@@ -169,7 +169,7 @@ export default function CodeWorkspace({
             });
 
             try {
-              const response = await fetch("/api/ai/autocomplete", {
+              const response = await fetch("/api/ai/auto-complete", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
