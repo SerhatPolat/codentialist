@@ -123,17 +123,25 @@ export default function CodeWorkspace({
       "html",
       "css",
       "scss",
+      "less",
+      "markdown",
       "yaml",
       "python",
+      "shell",
+      "dockerfile",
+      "sql",
+      "xml",
+      "ini",
       "plaintext",
     ];
 
     let debounceTimeout: NodeJS.Timeout | null = null;
 
     const provider = {
-      provideInlineCompletions: async (
+      provideInlineCompletions: (
         model: any,
         position: any,
+        context: any,
         token: any
       ) => {
         if (abortControllerRef.current) {
@@ -205,6 +213,7 @@ export default function CodeWorkspace({
         });
       },
       freeInlineCompletions: () => {},
+      disposeInlineCompletions: () => {},
     };
 
     supportedLanguages.forEach((lang) => {
