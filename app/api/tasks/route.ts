@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 import { connectToDatabase } from "@/lib/db";
 import Task from "@/models/Task";
 
+async function verifyRepoAccess(repository: string, token: string) {
+  const res = await fetch(`https://api.github.com/repos/${repository}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/vnd.github.v3+json",
+    },
+  });
+  return res.ok;
+}
+
 export async function GET(req: NextRequest) {
+  const session: any = await getServerSession(authOptions);
+  if (!session?.accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const token = session.accessToken;
+
   await connectToDatabase();
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
@@ -13,10 +31,25 @@ export async function GET(req: NextRequest) {
       const task = await Task.findById(id);
       if (!task)
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
+
+      const hasAccess = await verifyRepoAccess(task.repository, token);
+      if (!hasAccess)
+        return NextResponse.json(
+          { error: "Forbidden: Access denied" },
+          { status: 403 }
+        );
+
       return NextResponse.json(task);
     }
 
     if (repository) {
+      const hasAccess = await verifyRepoAccess(repository, token);
+      if (!hasAccess)
+        return NextResponse.json(
+          { error: "Forbidden: Access denied" },
+          { status: 403 }
+        );
+
       const tasks = await Task.find({ repository }).sort({ createdAt: -1 });
       return NextResponse.json(tasks);
     }
@@ -28,7 +61,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session: any = await getServerSession(authOptions);
+  if (!session?.accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const token = session.accessToken;
+
   await connectToDatabase();
+
   try {
     const body = await req.json();
     const { title, description, repository } = body;
@@ -39,6 +79,13 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const hasAccess = await verifyRepoAccess(repository, token);
+    if (!hasAccess)
+      return NextResponse.json(
+        { error: "Forbidden: Access denied" },
+        { status: 403 }
+      );
 
     const newTask = await Task.create({
       title,
@@ -55,7 +102,14 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const session: any = await getServerSession(authOptions);
+  if (!session?.accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const token = session.accessToken;
+
   await connectToDatabase();
+
   try {
     const body = await req.json();
     const { id, ...updates } = body;
@@ -64,6 +118,17 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(
         { error: "Task ID is required" },
         { status: 400 }
+      );
+
+    const existingTask = await Task.findById(id);
+    if (!existingTask)
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+
+    const hasAccess = await verifyRepoAccess(existingTask.repository, token);
+    if (!hasAccess)
+      return NextResponse.json(
+        { error: "Forbidden: Access denied" },
+        { status: 403 }
       );
 
     const updatedTask = await Task.findByIdAndUpdate(id, updates, {
@@ -82,7 +147,14 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const session: any = await getServerSession(authOptions);
+  if (!session?.accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const token = session.accessToken;
+
   await connectToDatabase();
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
@@ -93,12 +165,18 @@ export async function DELETE(req: NextRequest) {
         { status: 400 }
       );
 
-    const deletedTask = await Task.findByIdAndDelete(id);
-    if (!deletedTask)
+    const task = await Task.findById(id);
+    if (!task)
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+
+    const hasAccess = await verifyRepoAccess(task.repository, token);
+    if (!hasAccess)
       return NextResponse.json(
-        { error: "Task targets not found" },
-        { status: 404 }
+        { error: "Forbidden: Access denied" },
+        { status: 403 }
       );
+
+    await Task.findByIdAndDelete(id);
 
     return NextResponse.json({ message: "Task deleted successfully" });
   } catch (err: any) {

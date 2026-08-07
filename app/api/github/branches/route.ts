@@ -3,23 +3,22 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
 export async function GET(req: NextRequest) {
+  const session: any = await getServerSession(authOptions);
+  if (!session?.accessToken)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const token = session.accessToken;
+
+  const { searchParams } = req.nextUrl;
+  const repo = searchParams.get("repo");
+
+  if (!repo)
+    return NextResponse.json(
+      { error: "Repository parameter is required" },
+      { status: 400 }
+    );
+
   try {
-    const session: any = await getServerSession(authOptions);
-    if (!session.accessToken)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const token = session.accessToken;
-
-    const { searchParams } = req.nextUrl;
-    const repo = searchParams.get("repo");
-
-    if (!repo) {
-      return NextResponse.json(
-        { error: "Repository parameter is required" },
-        { status: 400 }
-      );
-    }
-
     const res = await fetch(`https://api.github.com/repos/${repo}/branches`, {
       headers: {
         Accept: "application/vnd.github.v3+json",
