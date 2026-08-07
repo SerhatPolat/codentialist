@@ -232,7 +232,9 @@ export default function CodeWorkspace({
         setFiles((prev) => {
           const updated = [...prev];
           dynamicPayload.files.forEach((f: any) => {
-            const existingIdx = updated.findIndex((f) => f.path === f.path);
+            const existingIdx = updated.findIndex(
+              (file) => file.path === f.path
+            );
             if (existingIdx > -1) {
               updated[existingIdx] = {
                 ...updated[existingIdx],
@@ -246,18 +248,18 @@ export default function CodeWorkspace({
           return updated;
         });
 
-        setAssistantState({
-          ...assistantState,
+        setAssistantState((prev) => ({
+          ...prev,
           aiExplanation: dynamicPayload.explanation,
-        });
+        }));
       }
     } catch (err) {
       console.error(err);
     } finally {
-      setAssistantState({
-        ...assistantState,
+      setAssistantState((prev) => ({
+        ...prev,
         prompt: "",
-      });
+      }));
       setIsLoadingAssistantResponse(false);
     }
   };
