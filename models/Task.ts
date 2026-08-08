@@ -8,7 +8,6 @@ export interface ITask extends Document {
   repository: ITaskFields["repository"];
   branch?: ITaskFields["branch"];
   filesSnapshot: IFileSnapshot[];
-  aiExplanation?: ITaskFields["aiExplanation"];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,7 +34,6 @@ const TaskSchema = new Schema<ITask>(
     repository: { type: String, required: true },
     branch: { type: String },
     filesSnapshot: [FileSnapshotSchema],
-    aiExplanation: { type: String },
   },
   { timestamps: true }
 );

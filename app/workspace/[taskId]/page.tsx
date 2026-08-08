@@ -137,7 +137,6 @@ export default function WorkspacePage({
       setTask((prev: any) => ({
         ...prev,
         filesSnapshot: consolidatedFiles,
-        aiExplanation: aiAnalysisRes.explanation,
       }));
       setFlowState("active");
     } catch (err) {

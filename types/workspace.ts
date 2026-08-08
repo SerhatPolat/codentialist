@@ -12,7 +12,6 @@ export interface ITask {
   repository: string;
   branch?: string;
   filesSnapshot: IFileSnapshot[];
-  aiExplanation?: string;
   createdAt: string;
   updatedAt: string;
 }

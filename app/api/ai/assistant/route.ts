@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash-lite",
       contents: [{ role: "user", parts: [{ text: promptContext }] }],
       config: {
         responseMimeType: "application/json",
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
                   content: { type: Type.STRING },
                   status: {
                     type: Type.STRING,
-                    enum: ["added", "modified", "deleted", "original"],
+                    enum: ["added", "modified", "deleted"],
                   },
                 },
                 required: ["path", "content", "status"],
