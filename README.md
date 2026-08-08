@@ -144,7 +144,7 @@ codentialist/
 ├── app/
 │   ├── globals.css                 # Tailwind CSS directives & some basic generic styles
 │   ├── layout.tsx                  # Root layout with Inter font & NextAuthProvider
-│   ├── page.tsx                    # GitHub Auth gate, repo entry & task dashboard
+│   ├── page.tsx                    # Root page wrapping Home with Suspense
 │   ├── workspace/
 │   │   └── [taskId]/
 │   │       └── page.tsx            # Dynamic workspace route for branch selection, IDE setup, etc.
@@ -174,6 +174,7 @@ codentialist/
     ├── CodeWorkspace.tsx           # Split-panel IDE containing Monaco, FileExplorer & AI Assistant
     ├── FileExplorer.tsx            # Advanced algorithmic files tree component
     ├── GridBackground.tsx          # Cyber vibe grid background with animation
+    ├── Home.tsx                    # Home page content (auth gate, repo entry & task dashboard)
     ├── LoadingView.tsx             # Centered loading spinner layout
     ├── NextAuthProvider.tsx        # Client-side NextAuth SessionProvider wrapper
     ├── OrbsBackground.tsx          # Ambient glowing SVG background orbs
