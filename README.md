@@ -109,7 +109,7 @@ sequenceDiagram
         API->>GH: Fetch Recursive Git Tree & Raw Blobs
         GH-->>API: Return Repository Source Code
         Client->>API: POST /api/ai/analyze-task
-        API->>AI: Analyze Code For Task Requirements
+        API->>AI: Analyze Task & Codes To Handle Requirements
         AI-->>Client: Modified Files Snapshot
         Client->>Client: Mount Monaco Editor
         Developer->>Client: Edit Code / Prompt AI Assistant
