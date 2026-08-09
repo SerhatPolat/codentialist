@@ -88,6 +88,7 @@ sequenceDiagram
         AI-->>Client: Structured Task Ideas (JSON)
         Developer->>Client: Add Confirmed Task
         Client->>API: POST /api/tasks
+        API->>GH: Verify Repo Access
         API->>DB: Store New Task
     end
 
