@@ -27,7 +27,7 @@ Codentialist is an AI-driven development platform built with TypeScript, Next.js
    - Real-time inline AI code completion registered via Monaco's `registerInlineCompletionsProvider`.
    - Uses cursor prefix and suffix context with debouncing and `AbortController` cancellation for fast, efficient AI completions.
 
-5. **Automated Commit, PR, & AI Code Review Pipeline**
+5. **Automated Commit, PR & AI Code Review Pipeline**
 
    - Git object construction via GitHub API (Trees, Commits, Refs).
    - Creates topic branch (`task-${taskId}`) and opens Pull Requests automatically.
@@ -44,7 +44,7 @@ Codentialist is an AI-driven development platform built with TypeScript, Next.js
 
 | Domain             | Technology / Library                         |
 | :----------------- | :------------------------------------------- |
-| **Framework**      | Next.js (Frontend + Backend)                 |
+| **Framework**      | Next.js (For Frontend & Backend)             |
 | **Language**       | TypeScript                                   |
 | **Authentication** | NextAuth.js                                  |
 | **AI Engine**      | Google Gen AI SDK (`@google/genai`)          |
