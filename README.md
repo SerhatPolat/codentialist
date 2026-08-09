@@ -1,6 +1,6 @@
 # Codentialist
 
-Codentialist is an AI-driven development platform built with TypeScript, Next.js, MongoDB, and GoogleGenAI. It seamlessly bridges GitHub repository based sandbox management, AI codebase analysis, autonomous/manual task generation, autonomous/manual software development, real-time inline completions, AI assistant for additional modifications and automated "Git Commit (+ task specific branch creation) -> Pull Request Creation -> Automated AI Code Review" flow.
+Codentialist is an AI-driven development platform built with TypeScript, Next.js, MongoDB, and GoogleGenAI. It seamlessly bridges GitHub repository based sandbox management, AI codebase analysis, autonomous/manual task generation, autonomous/manual software development, real-time inline completions, AI assistant for additional modifications and automated "Git Commit -> Branch Creation (+ Assigning Created Commit) -> Pull Request Creation -> Automated AI Code Review" flow.
 
 ---
 
@@ -84,7 +84,8 @@ sequenceDiagram
         Client->>API: POST /api/github/fetch-code
         API->>GH: Fetch Recursive Git Tree & Raw Blobs
         GH-->>API: Return Repository Source Code
-        API->>AI: POST /api/ai/generate-tasks
+        Client->>API: POST /api/ai/generate-tasks
+        API->>AI: Analyze Codes & Generate Robust Task Ideas
         AI-->>Client: Structured Task Ideas (JSON)
         Developer->>Client: Add Confirmed Task
         Client->>API: POST /api/tasks
@@ -92,7 +93,7 @@ sequenceDiagram
         API->>DB: Store New Task
     end
 
-    alt AI Coding & Workspace Refactoring
+    alt AI Software Development Workspace
         Developer->>Client: Launch Task Workspace
         Client->>API: GET /api/tasks?id=taskId
         API->>GH: Verify Repo Access
@@ -114,8 +115,9 @@ sequenceDiagram
         Client->>Client: Mount Monaco Editor
         Developer->>Client: Edit Code / Prompt AI Assistant
         Client->>API: POST /api/ai/auto-complete (AI Inline Code Completion) / POST /api/ai/assistant (AI Assistant)
-        AI-->>Client: Inline Completion Suggestion / Modified File Snapshots (AI Assistant)
-        Developer->>Client: Click "Finish" Workspace
+        API->>AI: Suggest The Rest Of Line By Analyzing Prefix & Suffix (AI Inline Code Completion) / Analyze Instruction And Perform Changes (AI Assistant)
+        AI-->>Client: Inline Completion Suggestion (AI Inline Code Completion) / Modified File Snapshots (AI Assistant)
+        Developer->>Client: Click "Finish"
         Client->>API: PUT /api/tasks (Status: "Done", updatedFilesSnapshot)
         API->>GH: Verify Repo Access
         API->>DB: Update Task
