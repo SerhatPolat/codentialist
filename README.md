@@ -102,6 +102,7 @@ sequenceDiagram
         GH->>Client: Render Fetched Branches
         Developer->>Client: Handle Branch Selection And Proceed
         Client->>API: PUT /api/tasks (Status: "In Progress", branch)
+        API->>GH: Verify Repo Access
         API->>DB: Update Task
         Client->>API: POST /api/github/fetch-code
         API->>GH: Fetch Recursive Git Tree & Raw Blobs
@@ -115,6 +116,7 @@ sequenceDiagram
         AI-->>Client: Inline Completion Suggestion / Modified File Snapshots (AI Assistant)
         Developer->>Client: Click "Finish" Workspace
         Client->>API: PUT /api/tasks (Status: "Done", updatedFilesSnapshot)
+        API->>GH: Verify Repo Access
         API->>DB: Update Task
     end
 
@@ -127,6 +129,7 @@ sequenceDiagram
         API->>GH: Post Feedback As PR Comment On GitHub
         GH-->>Client: Return PR URL (Client Opens In New Tab)
         Client->>API: DELETE /api/tasks?id=taskId
+        API->>GH: Verify Repo Access
         API->>DB: Delete Completed Task
     end
 ```
