@@ -101,7 +101,12 @@ sequenceDiagram
         API->>GH: Fetch Branches Of Repo
         GH->>Client: Render Fetched Branches
         Developer->>Client: Handle Branch Selection And Proceed
-        Client->>API: PUT /api/tasks (Status: "In Progress", branch) & POST /api/github/fetch-code & POST /api/ai/analyze-task
+        Client->>API: PUT /api/tasks (Status: "In Progress", branch)
+        API->>DB: Update Task
+        Client->>API: POST /api/github/fetch-code
+        API->>GH: Fetch Recursive Git Tree & Raw Blobs
+        GH-->>API: Return Repository Source Code
+        Client->>API: POST /api/ai/analyze-task
         API->>AI: Analyze Code For Task Requirements
         AI-->>Client: Modified Files Snapshot
         Client->>Client: Mount Monaco Editor
