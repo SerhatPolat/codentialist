@@ -79,7 +79,7 @@ sequenceDiagram
         Developer->>Client: Open AI Task Creator Modal
         Client->>API: GET /api/github/branches?repo=repo
         API->>GH: Fetch Branches Of Repo
-        GH->>Client: Render Fetched Branches
+        GH-->>Client: Render Fetched Branches
         Developer->>Client: Handle Branch Selection And Proceed
         Client->>API: POST /api/github/fetch-code
         API->>GH: Fetch Recursive Git Tree & Raw Blobs
@@ -101,7 +101,7 @@ sequenceDiagram
         DB-->>Client: Return Task Data
         Client->>API: GET /api/github/branches?repo=repo
         API->>GH: Fetch Branches Of Repo
-        GH->>Client: Render Fetched Branches
+        GH-->>Client: Render Fetched Branches
         Developer->>Client: Handle Branch Selection And Proceed
         Client->>API: PUT /api/tasks (Status: "In Progress", branch)
         API->>GH: Verify Repo Access
