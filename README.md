@@ -499,3 +499,9 @@ GEMINI_API_KEY=your_google_gemini_api_key
 ## ⚠️ Disclaimer
 
 **Please Note**: This application heavily utilizes AI. Because of the AI usage, outputs can be problematic. **Always review outputs carefully** before integrating them into your codebase.
+
+---
+
+## Recordings & Screenshots
+
+[https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing](https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing)
