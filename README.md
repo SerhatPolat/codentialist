@@ -1,6 +1,15 @@
-# Codentialist
+<div align="center"><img width="150" height="150" alt="Logo" src="https://github.com/user-attachments/assets/4f5aed98-cf64-407d-a046-1bed74aec437" /></div>
+<h1 align="center">Codentialist</h1>
 
 Codentialist is an AI-driven development platform built with TypeScript, Next.js, MongoDB, and GoogleGenAI. It seamlessly bridges GitHub repository based sandbox management, AI codebase analysis, autonomous/manual task generation, autonomous/manual software development, real-time inline completions, AI assistant for additional modifications and automated "Git Commit -> Branch Creation (+ Assigning Created Commit) -> Pull Request Creation -> Automated AI Code Review" flow.
+
+_**PHILOSOPHY OF PRODUCT**: Codentialist is a virtual existentialist software development guru that is capable to build itself with its own wisdom. Thanks to J. P. Sartre & F. Nietzsche for inspiration._
+
+---
+
+## Recordings & Screenshots
+
+[https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing](https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing)
 
 ---
 
@@ -136,6 +145,14 @@ sequenceDiagram
         API->>DB: Delete Completed Task
     end
 ```
+
+---
+
+## Multi-Layer Security Architecture
+
+- **Token Security:** GitHub OAuth tokens are handled strictly on the server using NextAuth session JWTs. They are never being stored in the database.
+- **Route Protection & Request Middleware:** API endpoints and application routes are secured via server-side session validation and action forwarding logics in `proxy.ts`. Unauthenticated requests/visits are being rejected immediately at the entry point.
+- **Repository Access Guards:** Before every database CRUD action, app validates caller repository access with (`verifyRepoAccess`).
 
 ---
 
@@ -488,20 +505,6 @@ GEMINI_API_KEY=your_google_gemini_api_key
 
 ---
 
-## Multi-Layer Security Architecture
-
-- **Token Security:** GitHub OAuth tokens are handled strictly on the server using NextAuth session JWTs. They are never being stored in the database.
-- **Route Protection & Request Middleware:** API endpoints and application routes are secured via server-side session validation and action forwarding logics in `proxy.ts`. Unauthenticated requests/visits are being rejected immediately at the entry point.
-- **Repository Access Guards:** Before every database CRUD action, app validates caller repository access with (`verifyRepoAccess`).
-
----
-
 ## ⚠️ Disclaimer
 
 **Please Note**: This application heavily utilizes AI. Because of the AI usage, outputs can be problematic. **Always review outputs carefully** before integrating them into your codebase.
-
----
-
-## Recordings & Screenshots
-
-[https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing](https://drive.google.com/drive/folders/10aUDUlqvme7VtJGxxZiBjYmUUobF7SEb?usp=sharing)
