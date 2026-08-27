@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Editor, { Monaco } from "@monaco-editor/react";
 import FileExplorer from "./FileExplorer";
 import { IFileSnapshot } from "@/types/workspace";
+import { io, Socket } from "socket.io-client";
+import { useSession } from "next-auth/react";
 
 const getLanguageFromPath = (path: string): string => {
   if (!path) return "plaintext";
@@ -65,14 +67,17 @@ interface CodeWorkspaceProps {
   initialFiles: IFileSnapshot[];
   taskData: { title: string; description: string };
   onFinish: (updatedFiles: IFileSnapshot[]) => void;
+  taskId?: string;
 }
 
 export default function CodeWorkspace({
   initialFiles,
   taskData,
   onFinish,
+  taskId,
 }: CodeWorkspaceProps) {
   const router = useRouter();
+  const { data: session } = useSession();
 
   const [files, setFiles] = useState<IFileSnapshot[]>(initialFiles);
   const [selectedFilePath, setSelectedFilePath] = useState<string>("");
@@ -82,19 +87,50 @@ export default function CodeWorkspace({
   });
   const [isLoadingAssistantResponse, setIsLoadingAssistantResponse] =
     useState(false);
+  const [activeUsers, setActiveUsers] = useState<{ id: string; name: string }[]>([]);
 
   const editorRef = useRef<any>(null);
   const monacoRef = useRef<Monaco | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const isRemoteUpdate = useRef(false);
 
   const activeFile = files.find((f) => f.path === selectedFilePath) || files[0];
 
   useEffect(() => {
     if (files.length > 0 && !selectedFilePath) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedFilePath(files[0].path);
     }
   }, [files, selectedFilePath]);
+
+  useEffect(() => {
+    const socket = io({
+      path: "/api/socket",
+    });
+    socketRef.current = socket;
+
+    const userName = session?.user?.name || "Developer";
+
+    socket.on("connect", () => {
+      socket.emit("join-room", { taskId: taskId || "default", user: { id: socket.id, name: userName } });
+    });
+
+    socket.on("room-users", (users: { id: string; name: string }[]) => {
+      setActiveUsers(users);
+    });
+
+    socket.on("file-update", (data: { path: string; content: string }) => {
+      isRemoteUpdate.current = true;
+      setFiles((prev) =>
+        prev.map((f) => (f.path === data.path ? { ...f, content: data.content, status: f.status === "original" ? "modified" : f.status } : f))
+      );
+      isRemoteUpdate.current = false;
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [taskId, session]);
 
   const handleEditorChange = (value: string | undefined) => {
     if (!activeFile || value === undefined) return;
@@ -110,6 +146,14 @@ export default function CodeWorkspace({
           : f
       )
     );
+
+    if (!isRemoteUpdate.current && socketRef.current) {
+      socketRef.current.emit("file-change", {
+        taskId: taskId || "default",
+        path: activeFile.path,
+        content: value,
+      });
+    }
   };
 
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
@@ -276,13 +320,24 @@ export default function CodeWorkspace({
   return (
     <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-full bg-slate-950 text-slate-100 lg:overflow-hidden">
       <div className="w-full lg:w-64 h-[35vh] lg:h-full flex flex-col bg-slate-950 lg:border-r border-b border-slate-800 shrink-0 lg:shrink">
-        <div className="p-3 sm:p-4 border-b border-slate-800 shrink-0">
+        <div className="p-3 sm:p-4 border-b border-slate-800 shrink-0 flex items-center justify-between">
           <button
             onClick={() => router.push("/")}
             className="font-semibold text-xs sm:text-sm text-slate-400 tracking-wider uppercase"
           >
             {project.title}
           </button>
+          <div className="flex items-center gap-1">
+            {activeUsers.map((u) => (
+              <span
+                key={u.id}
+                title={u.name}
+                className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-indigo-400"
+              >
+                {u.name.charAt(0).toUpperCase()}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 min-h-0 overflow-auto">

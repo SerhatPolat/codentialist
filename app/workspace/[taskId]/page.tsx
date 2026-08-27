@@ -75,7 +75,7 @@ export default function WorkspacePage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
-  const initiateAiInitializationFlow = async (e: React.SubmitEvent) => {
+  const initiateAiInitializationFlow = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (isLoading) return;
@@ -263,6 +263,7 @@ export default function WorkspacePage({
         initialFiles={task.filesSnapshot}
         taskData={{ title: task.title, description: task.description }}
         onFinish={finalizeWorkspaceTrackingState}
+        taskId={taskId}
       />
     );
   }
